@@ -55,21 +55,6 @@ def net_init_vectors(vect_dim, classes):
             vectors_array[i][j] = binary_list[j]
     return vectors_array
 
-def energy(weights, biases, x_t_min_1, x_t):
-    transposed_weights = weights.transpose()
-    if not weights.shape == transposed_weights.shape:
-        raise ValueError("Weights must be a square matrix.")
-    if not len(biases[0]) == len(weights[0]):
-        raise ValueError("Biases array must be of same length as length of weights array row")
-    sum_1 = 0
-    sum_2 = 0
-    for i in range(weights.shape[0]):
-        for j in range(weights.shape[0]):
-            sum_1 += weights[i][j]*x_t[i]*x_t_min_1[j]
-        sum_2 += biases[0][i] * (x_t[i] * x_t_min_1[i])
-    e = -sum_1 + sum_2
-    return e
-
 def hopfield(WEIGHTS_ARRAY, B_ARRAY, ACTIVATION_FN, OBS_CLASSES):
     is_symmetric = is_symmetric_matrix(WEIGHTS_ARRAY)
     non_negative_diagonal = has_non_negative_diagonal(WEIGHTS_ARRAY)
@@ -124,7 +109,7 @@ def main():
         [0, 0, 0]
     ])
     print("###############")
-    print("ZADANIE 1")
+    print("TASK 1")
     print("###############")
     print(f"Weights:\n{weights_1}")
     print(f"Biases:\n{biases_1}")
@@ -137,7 +122,7 @@ def main():
         [0, 0]
     ])
     print("###############")
-    print("ZADANIE 2")
+    print("TASK 2")
     print("###############")
     print(f"Weights:\n{weights_2}")
     print(f"Biases:\n{biases_2}")
