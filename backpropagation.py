@@ -93,7 +93,7 @@ class NetworkPartial(Network):
         weights_diff = np.ones([3,3])
         iteration = 0
         energies=np.empty((0,4), dtype=float)
-        while self.is_gradient_changing(weights_diff) and iteration < 8000:
+        while self.is_gradient_changing(weights_diff) and iteration < 20000:
             for i in range(len(self.input_vectors)):
                 [partial_energy, output_vectors] = self.cycle(self.input_vectors[i],self.dest[i])
                 energy_gradient = self.gradient_matrix(self.dest[i],output_vectors)
@@ -112,7 +112,7 @@ class NetworkWhole(Network):
         weights_diff = np.ones([3,3])
         iteration = 0
         energies=np.empty((0,4), dtype=float)
-        while self.is_gradient_changing(weights_diff) and iteration < 8000:
+        while self.is_gradient_changing(weights_diff) and iteration < 20000:
             energy_gradient_sum = np.zeros([3,3])
             for i in range(len(self.input_vectors)):
                 [partial_energy, output_vectors] = self.cycle(self.input_vectors[i],self.dest[i])
@@ -131,7 +131,7 @@ def main():
     x = np.array([[1,0,0],[1,0,1],[1,1,0],[1,1,1]], np.double)
     d = [0,1,1,0]
     network_partial = NetworkPartial(x, d, weights_init, 0.5, 0.005)
-    network_whole = NetworkWhole(x, d, weights_init, 0.5, 0.0005)
+    network_whole = NetworkWhole(x, d, weights_init, 0.5, 0.0001)
     partial_energies = network_partial.solve()
     whole_energies = network_whole.solve()
     Network.show_energy_diff_plots(partial_energies,whole_energies)
