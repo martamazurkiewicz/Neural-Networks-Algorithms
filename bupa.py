@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import matplotlib.pyplot as plt
 import numpy as np
 
 def weighted_sum(data_vector, weights_vector):
@@ -27,8 +28,10 @@ def bupa(train_set, teacher_set, init_weights, ro, activation_function, max_iter
     weights_vector = init_weights
     misclassifications = 0
     iterations = 0
+    weights_plot = np.empty((0, 3), dtype=float)
     while iterations < max_iterations:
         iterations += 1
+        weights_plot = np.append(weights_plot, np.array([weights_vector]), axis=0)
         misclassifications = 0
         misclassified_vectors = []
         for i in range(len(train_set)):
@@ -42,9 +45,26 @@ def bupa(train_set, teacher_set, init_weights, ro, activation_function, max_iter
         else:
             break
     if(misclassifications == 0):
-        return (True, weights_vector, iterations)
+        return (True, weights_vector, iterations, weights_plot)
     else:
-        return (False, None, iterations)
+        return (False, None, iterations, None)
+
+def show_plot(weights_plot):
+    fig, ax0 = plt.subplots(constrained_layout=True,figsize=(8, 4))
+    x = np.linspace(-5,5,100)
+    color = plt.cm.get_cmap('hsv', len(weights_plot))
+    ax0.set_title('Decision boundaries - BUPA')
+    for i in range(len(weights_plot)):
+        [w0, w1, w2] = weights_plot[i]
+        if w2 != 0:
+            y=-w0/w2-w1/w2*x
+            ax0.plot(x,y,c=color(i),label='Iteration '+ str(i+1))
+            ax0.legend(loc='upper right')
+    ax0.scatter([0,0,1,1],[0,1,0,1],color='black')
+    ax0.grid()
+    ax0.set_ylabel('y')
+    ax0.set_xlabel('x')
+    plt.show(block=True)
 
 def main():
     ### CONFIGURATION ###
@@ -61,9 +81,10 @@ def main():
     EXP_RES_VECT = np.array(D)
     ### END CONFIGURATION ###
 
-    has_converged, weights, iterations = bupa(X_VECT, EXP_RES_VECT, INIT_WEIGHTS, RO, ACTIVATION_FN)
+    has_converged, weights, iterations, weights_plot = bupa(X_VECT, EXP_RES_VECT, INIT_WEIGHTS, RO, ACTIVATION_FN)
     if has_converged:
         print(f"Final weights after {iterations} iterations: {weights}")
+        show_plot(weights_plot)
     else:
         print("The algorithm did not converge")
 
