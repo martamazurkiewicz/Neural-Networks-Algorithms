@@ -64,7 +64,7 @@ class Network(object):
         print ('Ending weights: ', self.weights)
 
     def show_energy_diff_plots(partial_energies,whole_energies):
-        fig, (ax0, ax1) = plt.subplots(2, 1, sharex=True, constrained_layout=True,figsize=(8, 6))
+        fig, (ax0, ax1) = plt.subplots(2, 1, constrained_layout=True,figsize=(9, 8))
         iter_p = range(len(partial_energies))
         ax0.set_title('Energy change in partial energy methon')
         ax0.plot(iter_p, partial_energies[:,0], label='E for vector [1,0,0]')
@@ -130,7 +130,7 @@ def main():
     weights_init = np.array([[0.86,-0.16,0.28],[0.82,-0.51,-0.89],[0.04,-0.43,0.48]], np.double)
     x = np.array([[1,0,0],[1,0,1],[1,1,0],[1,1,1]], np.double)
     d = [0,1,1,0]
-    network_partial = NetworkPartial(x, d, weights_init, 0.5, 0.005)
+    network_partial = NetworkPartial(x, d, weights_init, 0.5, 0.001)
     network_whole = NetworkWhole(x, d, weights_init, 0.5, 0.0001)
     partial_energies = network_partial.solve()
     whole_energies = network_whole.solve()
