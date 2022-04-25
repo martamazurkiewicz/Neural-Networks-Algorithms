@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -65,21 +63,27 @@ class Network(object):
         print ('Solution: ', solution)
         print ('Ending weights: ', self.weights)
 
-    def show_energy_diff_plots(partial_energies):
-        #fig, (ax0, ax1) = plt.subplots(2, 1, sharex=True, constrained_layout=True)
-        #fig, ax0 = plt.subplots(constrained_layout=True,figsize=(7, 4))
-        iter = range(len(partial_energies))
-        fig, ax0 = plt.subplots(constrained_layout=True,figsize=(8, 4))
-        ax0.plot(iter, partial_energies[:,0], label='E for vector [1,0,0]')
-        ax0.plot(iter, partial_energies[:,1], label='E for vector [1,0,1]')
-        ax0.plot(iter, partial_energies[:,2], label='E for vector [1,1,0]')
-        ax0.plot(iter, partial_energies[:,3], label='E for vector [1,1,1]')
+    def show_energy_diff_plots(partial_energies,whole_energies):
+        fig, (ax0, ax1) = plt.subplots(2, 1, sharex=True, constrained_layout=True,figsize=(8, 6))
+        iter_p = range(len(partial_energies))
+        ax0.set_title('Energy change in partial energy methon')
+        ax0.plot(iter_p, partial_energies[:,0], label='E for vector [1,0,0]')
+        ax0.plot(iter_p, partial_energies[:,1], label='E for vector [1,0,1]')
+        ax0.plot(iter_p, partial_energies[:,2], label='E for vector [1,1,0]')
+        ax0.plot(iter_p, partial_energies[:,3], label='E for vector [1,1,1]')
         ax0.legend(loc='upper right')
         ax0.set_ylabel('Energy')
         ax0.set_xlabel('Iteration')
-        plt.title('Energy change in partial energy methon')
+        iter_w = range(len(whole_energies))
+        ax1.plot(iter_w, whole_energies[:,0], label='E for vector [1,0,0]')
+        ax1.plot(iter_w,  whole_energies[:,1], label='E for vector [1,0,1]')
+        ax1.plot(iter_w,  whole_energies[:,2], label='E for vector [1,1,0]')
+        ax1.plot(iter_w,  whole_energies[:,3], label='E for vector [1,1,1]')
+        ax1.legend(loc='upper right')
+        ax1.set_ylabel('Energy')
+        ax1.set_xlabel('Iteration')
+        ax1.set_title('Energy change in whole energy methon')
         plt.show(block=True)
-
 Network.show_energy_diff_plots = staticmethod(Network.show_energy_diff_plots)
 
 class NetworkPartial(Network):
@@ -101,28 +105,25 @@ class NetworkPartial(Network):
         self.print_results('Partial energy method',iteration,solution)
         return energies
 
-
-
-def network_whole_energy(weights,input_vector,d,ni,diff):
-    solution = np.ones(4)
-    energy = np.ones(4)
-    weights_diff = np.ones([3,3])
-    iteration = 0
-    while is_gradient_changing(weights_diff,diff) and iteration < 8000:
-        energy_gradient_sum = np.zeros([3,3])
-        for i in range(len(input_vector)):
-            [partial_energy, output_vectors] = cycle(weights,input_vector[i],d[i])
-            solution[i] = output_vectors[0]
-            energy_gradient_sum += gradient_matrix(d[i],weights[2],output_vectors)
-            energy[i] = partial_energy    
-        [weights,weights_diff] = update_weight(weights,ni,energy_gradient_sum)
-        iteration += 1
-    print ('Whole energy method')
-    print ('Iteration: ', iteration)
-    print ('Last energy: ', energy)
-    print ('Solution: ', solution)
-    print ('Ending weights: ', weights)
-    
+class NetworkWhole(Network):
+    def solve(self):
+        solution = np.ones(4)
+        energy = np.ones(4)
+        weights_diff = np.ones([3,3])
+        iteration = 0
+        energies=np.empty((0,4), dtype=float)
+        while self.is_gradient_changing(weights_diff) and iteration < 8000:
+            energy_gradient_sum = np.zeros([3,3])
+            for i in range(len(self.input_vectors)):
+                [partial_energy, output_vectors] = self.cycle(self.input_vectors[i],self.dest[i])
+                energy_gradient_sum += self.gradient_matrix(self.dest[i],output_vectors)
+                energy[i] = partial_energy
+                solution[i] = output_vectors[0]
+            weights_diff = self.update_weights(energy_gradient_sum)
+            iteration += 1
+            energies = np.append(energies, np.array([energy]), axis=0)
+        self.print_results('Whole energy method',iteration,solution)
+        return energies
 
 
 def main():
@@ -130,8 +131,9 @@ def main():
     x = np.array([[1,0,0],[1,0,1],[1,1,0],[1,1,1]], np.double)
     d = [0,1,1,0]
     network_partial = NetworkPartial(x, d, weights_init, 0.5, 0.005)
+    network_whole = NetworkWhole(x, d, weights_init, 0.5, 0.0005)
     partial_energies = network_partial.solve()
-    Network.show_energy_diff_plots(partial_energies)
-    #network_whole_energy(weights_init,x,d,0.5,0.000000001)
+    whole_energies = network_whole.solve()
+    Network.show_energy_diff_plots(partial_energies,whole_energies)
 
 main()
