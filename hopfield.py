@@ -88,12 +88,7 @@ def hopfield(WEIGHTS_ARRAY, B_ARRAY, ACTIVATION_FN, OBS_CLASSES):
         elif all(v == vector):
             print(f"[#] Net cycle detected for vector: {vector}\n")
             print(f" - Cycle: {results[:-1]} (...)")
-            cycle_length = 1
-            i = 1
-            while i < len(results) and not all(results[i] == results[0]):
-                cycle_length += 1
-                i += 1
-            print(f" - Cycle length: {cycle_length}\n")
+            print(f" - Cycle length: {len(results[:-1])}\n")
         else:
             print(f"CRITICAL ERROR. VECTOR {vector} left without result.")
 
